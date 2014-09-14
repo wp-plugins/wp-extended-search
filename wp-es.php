@@ -1,0 +1,47 @@
+<?php
+/*
+Plugin Name: WP Extended Search
+Plugin URI: http://wordpress.org/plugins/wp-extended-search/
+Author: 5um17
+Author URI: http://www.secretsofgeeks.com
+Version: 1.0
+Description: Enhance Wordpress default search. Search in selected post meta and/or selected taxonomies, include or exclude post type in serach results.
+Tags: 5um17, search, custom search, post meta search, taxonomy search, post type search
+*/
+
+/* Define plugin constants */
+if (!defined('WP_ES_DIR')) {
+    //Plugin path
+    define('WP_ES_DIR', plugin_dir_path(__FILE__));
+}
+
+if (!defined('WP_ES_URL')) {
+    //Plugin url
+    define('WP_ES_URL', plugin_dir_url(__FILE__));
+}
+
+if (!defined('WP_ES_VERSION')) {
+    //Plugin Version
+    define('WP_ES_VERSION', '1.0');
+}
+
+/* Includes library files */
+foreach( glob ( WP_ES_DIR . "/includes/*.php" ) as $filename ) {
+    require_once( $filename );
+}
+
+/* Includes admin files */
+if (is_admin()) {
+    foreach( glob ( WP_ES_DIR . "/admin/*.php" ) as $filename ) {
+       require_once( $filename );
+    }
+}
+/* Global Class objects */
+global $WP_ES, $WP_ES_admin;
+
+/* Initiate classes */
+$WP_ES = new WP_ES();
+
+if (is_admin()) {
+    $WP_ES_admin = new WP_ES_admin();
+}
