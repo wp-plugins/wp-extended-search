@@ -14,14 +14,16 @@ Control WordPress default search to search in Post Meta, Categories, Tags or Cus
  
 You can include or exclude post types to appear in search results.
 
-=Features=
+= Features =
+
 * Search in selected meta keys
 * Search in selected in-built or custom taxonomies
 * Include or exclude any public post type
 * Control whether to search in title or content or both
 
 == Installation ==
-Install WP Extended Search from the \'Plugins\' section in your dashboard (Plugins > Add New > Search for \'WP Extended Search\' ).
+
+Install WP Extended Search from the 'Plugins' section in your dashboard (Plugins > Add New > Search for 'WP Extended Search').
 
 Or
 
