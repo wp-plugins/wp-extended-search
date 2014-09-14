@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: WP Extended Search
-Plugin URI: http://www.example.com/
+Plugin URI: http://wordpress.org/plugins/wp-extended-search/
 Author: 5um17
 Author URI: http://www.secretsofgeeks.com
 Version: 1.0
