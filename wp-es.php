@@ -6,7 +6,7 @@ Author: 5um17
 Author URI: http://www.secretsofgeeks.com
 Version: 1.0
 Description: Enhance Wordpress default search. Search in selected post meta and/or selected taxonomies, include or exclude post type in serach results.
-Tags: 5um17, search, custom search, post meta search, taxonomy search, post type search
+Tags: 5um17, search, custom search, post meta search, taxonomy search, post type search, category search, page search, tag search
 */
 
 /* Define plugin constants */

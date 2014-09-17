@@ -1,6 +1,6 @@
 === WP Extended Search ===
 Contributors: 5um17
-Tags: search, postmeta, taxonomy, advance search
+Tags: search, postmeta, taxonomy, advance search, category search, page search, tag search
 Requires at least: 3.5.1
 Tested up to: 4.0
 Stable tag: 1.0
