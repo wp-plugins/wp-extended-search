@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: WP Extended Search
-Plugin URI: http://wordpress.org/plugins/wp-extended-search/
+Plugin URI: http://www.secretsofgeeks.com/2014/09/wordpress-search-tags-and-categories.html
 Author: 5um17
 Author URI: http://www.secretsofgeeks.com
 Version: 1.0
