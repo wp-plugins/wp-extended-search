@@ -12,20 +12,24 @@ class WP_ES {
 
     /**
      * Default Constructor
+     * @since 1.0
      */
     public function __construct() {
         
-        $this->text_domain = 'WP_ES';
+        $this->text_domain = 'wp-extended-search';
         $this->WP_ES_settings = $this->wp_es_options();
         
         if (!is_admin()) {
             //Only filter non admin requests!
             add_action('init', array($this,'wp_es_init'));
         }
+        
+        add_action('plugins_loaded', array($this, 'wp_es_plugin_loaded'));
     }
     
     /**
      * Get Defualt options
+     * @since 1.0
      */
     public function default_options() {
         $settings = array(
@@ -40,18 +44,38 @@ class WP_ES {
 
     /**
      * Get plugin options
+     * @since 1.0
      */
     public function wp_es_options() {
         $db_settings = get_option('wp_es_options');
         $settings = wp_parse_args($db_settings, $this->default_options());
         return $settings;
     }
+    
+    /**
+     * Load plugin text domain
+     * @since 1.0.1
+     */
+    public function wp_es_plugin_loaded() {
+        load_plugin_textdomain( $this->text_domain, false, dirname( plugin_basename( WP_ES_DIR . 'wp-es.php' ) ) . '/languages' );
+    }
 
     /**
      * Init function
+     * @since 1.0
      * @return NULL
      */
     public function wp_es_init() {
+        
+        /**
+         * Filter plugin's all action hooks to enabled or disabled
+         * @since 1.0.1
+         * @param bool true to enable or false to disable
+         */
+        if (!apply_filters('wpes_enabled', TRUE)) {
+            return;
+        }
+        
         /* Filter to modify search query */
         add_filter( 'posts_search', array($this, 'wp_es_custom_query'), 500, 2 );
         
@@ -61,7 +85,8 @@ class WP_ES {
     
     /**
      * Add post type in where clause of wp query
-     * @param object $args wp_query object
+     * @since 1.0
+     * @param object $query wp_query object
      */
     public function wp_es_pre_get_posts($query) {
         if (isset($query->is_search) && !empty($query->is_search)) {
@@ -73,6 +98,7 @@ class WP_ES {
 
     /**
      * Core function return the custom query
+     * @since 1.0
      * @global Object $wpdb wordpress db object
      * @param string $search Search query
      * @param object $wp_query WP query
@@ -164,11 +190,18 @@ class WP_ES {
         /* Request distinct results */
         add_filter('posts_distinct_request', array($this, 'WP_ES_distinct'));
         
-        return $search; // phew :P All done, Now return everything to wp.
+        /**
+         * Filter search query return by plugin
+         * @since 1.0.1
+         * @param string $search SQL query
+         * @param object $wp_query global wp_query object
+         */
+        return apply_filters('wpes_posts_search', $search); // phew :P All done, Now return everything to wp.
     }
     
     /**
      * Join tables
+     * @since 1.0
      * @global Object $wpdb WPDB object
      * @param string $join query for join
      * @return string $join query for join
@@ -184,8 +217,8 @@ class WP_ES {
         //join taxonomies table
         if (!empty($this->WP_ES_settings['taxonomies'])) {
             $join .= " LEFT JOIN $wpdb->term_relationships tr ON ($wpdb->posts.ID = tr.object_id) ";
-            $join .= " INNER JOIN $wpdb->term_taxonomy tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id) ";
-            $join .= " INNER JOIN $wpdb->terms t ON (tt.term_id = t.term_id) ";
+            $join .= " LEFT JOIN $wpdb->term_taxonomy tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id) ";
+            $join .= " LEFT JOIN $wpdb->terms t ON (tt.term_id = t.term_id) ";
         }
         
         return $join;
@@ -193,6 +226,7 @@ class WP_ES {
 
     /**
      * Request distinct results
+     * @since 1.0
      * @param string $distinct
      * @return string $distinct
      */

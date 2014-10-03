@@ -4,7 +4,8 @@ Plugin Name: WP Extended Search
 Plugin URI: http://www.secretsofgeeks.com/2014/09/wordpress-search-tags-and-categories.html
 Author: 5um17
 Author URI: http://www.secretsofgeeks.com
-Version: 1.0
+Text Domain: wp-extended-search
+Version: 1.0.1
 Description: Enhance Wordpress default search. Search in selected post meta and/or selected taxonomies, include or exclude post type in serach results.
 */
 
@@ -21,7 +22,7 @@ if (!defined('WP_ES_URL')) {
 
 if (!defined('WP_ES_VERSION')) {
     //Plugin Version
-    define('WP_ES_VERSION', '1.0');
+    define('WP_ES_VERSION', '1.0.1');
 }
 
 /* Includes library files */

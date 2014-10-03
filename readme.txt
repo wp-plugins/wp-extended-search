@@ -3,7 +3,7 @@ Contributors: 5um17
 Tags: search, postmeta, taxonomy, advance search, category search, page search, tag search
 Requires at least: 3.5.1
 Tested up to: 4.0
-Stable tag: 1.0
+Stable tag: 1.0.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -20,14 +20,16 @@ You can include or exclude post types to appear in search results.
 * Search in selected in-built or custom taxonomies
 * Include or exclude any public post type
 * Control whether to search in title or content or both
+* Translation ready
+
+Get detailed documentation [here](http://www.secretsofgeeks.com/2014/09/wordpress-search-tags-and-categories.html)
 
 == Installation ==
 
-Install WP Extended Search from the 'Plugins' section in your dashboard (Plugins > Add New > Search for 'WP Extended Search').
-
-Or
-
-Download WP Extended Search and upload it to your webserver via your FTP application. The WordPress codex contains [instructions on how to do this here](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
+* Install WP Extended Search from the 'Plugins' section in your dashboard (Plugins > Add New > Search for 'WP Extended Search').
+  Or
+  Download WP Extended Search and upload it to your webserver via your FTP application. The WordPress codex contains [instructions on how to do this here](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
+* Activate the plugin and navigate to (Settings > Extended Search) to choose your desired search settings.
 
 == Frequently Asked Questions ==
 
@@ -37,3 +39,13 @@ Please use plugin [support forum](http://wordpress.org/support/plugin/wp-extende
 
 == Screenshots ==
 1. WP Extented Search settings page
+
+== Changelog ==
+
+= 1.0.1 - 03/10/2014 =
+* Fixed taxonomy table join issue
+* Added new filters wpes_meta_keys_query, wpes_tax_args, wpes_post_types_args, wpes_enabled, wpes_posts_search
+* Internationalized plugin.
+
+= 1.0 - 14/09/2014 =
+* First Release

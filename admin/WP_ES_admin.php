@@ -12,6 +12,7 @@ class WP_ES_admin {
 
     /**
      * Default Constructor
+     * @since 1.0
      */
     public function __construct(){
         global $WP_ES;
@@ -26,6 +27,7 @@ class WP_ES_admin {
 
     /**
      * Add Admin page
+     * @since 1.0
      */
     public function WP_ES_admin_add_page(){
         add_options_page('WP Extended Search Settings', 'Extended Search', 'manage_options', 'wp-es', array($this, 'wp_es_page'));
@@ -33,6 +35,7 @@ class WP_ES_admin {
 
     /**
      * Print admin page content
+     * @since 1.0
      */
     public function wp_es_page(){ ?>
         <div class="wrap">
@@ -52,6 +55,7 @@ class WP_ES_admin {
 
     /**
      * Add Section settings and settings fields
+     * @since 1.0
      */
     public function WP_ES_admin_init(){
 
@@ -71,6 +75,7 @@ class WP_ES_admin {
     
     /**
      * enqueue admin style and scripts
+     * @since 1.0
      */
     public function WP_ES_admin_scripts() {
         wp_enqueue_style('wpes_admin_css', WP_ES_URL . 'assets/css/wp-es-admin.css');
@@ -78,12 +83,18 @@ class WP_ES_admin {
 
     /**
      * Get all meta keys
+     * @since 1.0
      * @global Object $wpdb WPDB object
      * @return Array array of meta keys
      */
     public function wp_es_fields() {
         global $wpdb;
-        $wp_es_fields = $wpdb->get_results("select DISTINCT meta_key from $wpdb->postmeta where meta_key NOT LIKE '\_%' ORDER BY meta_key ASC");
+        /**
+         * Filter query for meta keys in admin options
+         * @since 1.0.1
+         * @param string SQL query
+         */
+        $wp_es_fields = $wpdb->get_results(apply_filters('wpes_meta_keys_query', "select DISTINCT meta_key from $wpdb->postmeta where meta_key NOT LIKE '\_%' ORDER BY meta_key ASC"));
         $meta_keys = array();
 
         if (is_array($wp_es_fields) && !empty($wp_es_fields)) {
@@ -99,6 +110,7 @@ class WP_ES_admin {
 
     /**
      * Validate input settings
+     * @since 1.0
      * @global object $WP_ES Main class object
      * @param array $input input array by user
      * @return array validated input for saving
@@ -132,6 +144,7 @@ class WP_ES_admin {
 
     /**
      * Section content before display fields
+     * @since 1.0
      */
     public function wp_es_section_content(){ ?>
         <em><?php _e('Every field have OR relation with each other. e.g. if someone search for "5um17" then search results will show those items which have "5um17" as meta value or taxonomy\'s term or in title or in content, whatever option is selected.', $this->text_domain); ?></em><?php
@@ -139,6 +152,7 @@ class WP_ES_admin {
 
     /**
      * Default settings checkbox
+     * @since 1.0
      * @global object $WP_ES
      */
     public function wp_es_title_content_checkbox(){ 
@@ -156,6 +170,7 @@ class WP_ES_admin {
 
     /**
      * Meta keys checkboxes
+     * @since 1.0
      * @global object $WP_ES
      */
     public function wp_es_custom_field_name_list() {
@@ -179,15 +194,21 @@ class WP_ES_admin {
     
     /**
      * Taxonomies checboxes
+     * @since 1.0
      * @global object $WP_ES
      */
     public function wp_es_taxonomies_settings() {
         global $WP_ES;
         
-        $all_taxonomies = get_taxonomies(array(
+        /**
+         * Filter taxonomies arguments
+         * @since 1.0.1
+         * @param array arguments array
+         */
+        $all_taxonomies = get_taxonomies(apply_filters('wpes_tax_args', array(
             'show_ui' => TRUE,
             'public' => TRUE
-        ), 'objects');
+        )), 'objects');
         
         if (is_array($all_taxonomies) && !empty($all_taxonomies)) {
             foreach ($all_taxonomies as $tax_name => $tax_obj) { ?>
@@ -201,15 +222,21 @@ class WP_ES_admin {
     
     /**
      * Post type checkboexes
+     * @since 1.0
      * @global object $WP_ES
      */
     public function wp_es_post_types_settings() {
         global $WP_ES;
-        
-        $all_post_types = get_post_types(array(
+
+        /**
+         * Filter post type arguments
+         * @since 1.0.1
+         * @param array arguments array
+         */
+        $all_post_types = get_post_types(apply_filters('wpes_post_types_args', array(
             'show_ui' => TRUE,
             'public' => TRUE
-        ), 'objects');
+        )), 'objects');
         
         if (is_array($all_post_types) && !empty($all_post_types)) {
             foreach ($all_post_types as $post_name => $post_obj) { ?>
@@ -223,6 +250,7 @@ class WP_ES_admin {
     
     /**
      * return checked if value exist in array
+     * @since 1.0
      * @param mixed $value value to check against array
      * @param array $array haystack array
      * @return string checked="checked" or blank string
