@@ -89,8 +89,10 @@ class WP_ES {
      * @param object $query wp_query object
      */
     public function wp_es_pre_get_posts($query) {
-        if (isset($query->is_search) && !empty($query->is_search)) {
-            if (isset($this->WP_ES_settings['post_types']) && !empty($this->WP_ES_settings['post_types'])) {
+        if (isset($query->is_search) && !empty($query->is_search) && isset($this->WP_ES_settings['post_types']) && !empty($this->WP_ES_settings['post_types'])) {
+            if (isset($_GET['post_type']) && in_array(esc_attr($_GET['post_type']), (array) $this->WP_ES_settings['post_types'])) {
+                $query->query_vars['post_type'] = (array) esc_attr($_GET['post_type']);
+            } else {
                 $query->query_vars['post_type'] = (array) $this->WP_ES_settings['post_types'];
             }
         }

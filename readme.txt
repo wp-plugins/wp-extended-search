@@ -42,6 +42,9 @@ Please use plugin [support forum](http://wordpress.org/support/plugin/wp-extende
 
 == Changelog ==
 
+= Development - 19/11/2014 =
+* Added support for post_type parameter
+
 = 1.0.1 - 03/10/2014 =
 * Fixed taxonomy table join issue
 * Added new filters wpes_meta_keys_query, wpes_tax_args, wpes_post_types_args, wpes_enabled, wpes_posts_search
