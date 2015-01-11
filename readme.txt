@@ -1,9 +1,9 @@
 === WP Extended Search ===
 Contributors: 5um17
 Tags: search, postmeta, taxonomy, advance search, category search, page search, tag search
-Requires at least: 3.5.1
-Tested up to: 4.0
-Stable tag: 1.0.1
+Requires at least: 3.7
+Tested up to: 4.1
+Stable tag: 1.0.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -20,6 +20,7 @@ You can include or exclude post types to appear in search results.
 * Search in selected in-built or custom taxonomies
 * Include or exclude any public post type
 * Control whether to search in title or content or both
+* Exclude old content from search results (Older than admin specified date)
 * Translation ready
 
 Get detailed documentation [here](http://www.secretsofgeeks.com/2014/09/wordpress-search-tags-and-categories.html)
@@ -42,8 +43,9 @@ Please use plugin [support forum](http://wordpress.org/support/plugin/wp-extende
 
 == Changelog ==
 
-= Development - 19/11/2014 =
-* Added support for post_type parameter
+= 1.0.2 - 11/01/2015 =
+* Added support for post_type parameter in URL
+* Exclude old content from search results
 
 = 1.0.1 - 03/10/2014 =
 * Fixed taxonomy table join issue

@@ -8,7 +8,6 @@ class WP_ES_admin {
     
     /* Defaults Variable */
     public $text_domain = '';
-    public $wpcf_fields = '';
 
     /**
      * Default Constructor
@@ -70,6 +69,7 @@ class WP_ES_admin {
         add_settings_field( 'wp_es_list_custom_fields', __('Select Meta Key Names' , $this->text_domain), array($this, 'wp_es_custom_field_name_list'), 'wp-es', 'wp_es_section_1' );
         add_settings_field( 'wp_es_list_taxonomies', __('Select Taxonomies' , $this->text_domain), array($this, 'wp_es_taxonomies_settings'), 'wp-es', 'wp_es_section_1' );
         add_settings_field( 'wp_es_list_post_types', __('Select Post Types' , $this->text_domain), array($this, 'wp_es_post_types_settings'), 'wp-es', 'wp_es_section_1' );
+        add_settings_field( 'wp_es_exclude_older_results', __('Select date to exclude older results' , $this->text_domain), array($this, 'wp_es_exclude_results'), 'wp-es', 'wp_es_section_1', array('label_for' => 'es_exclude_date') );
         
     }
     
@@ -77,8 +77,13 @@ class WP_ES_admin {
      * enqueue admin style and scripts
      * @since 1.0
      */
-    public function WP_ES_admin_scripts() {
-        wp_enqueue_style('wpes_admin_css', WP_ES_URL . 'assets/css/wp-es-admin.css');
+    public function WP_ES_admin_scripts($hook) {
+        if ($hook == 'settings_page_wp-es') {
+            wp_enqueue_script('jquery-ui-datepicker');
+            wp_enqueue_style('wpes_jquery_ui', WP_ES_URL . 'assets/css/jQueryUI/jquery-ui.min.css');
+            wp_enqueue_style('wpes_jquery_ui_theme', WP_ES_URL . 'assets/css/jQueryUI/jquery-ui.theme.min.css');
+            wp_enqueue_style('wpes_admin_css', WP_ES_URL . 'assets/css/wp-es-admin.css');
+        }
     }
 
     /**
@@ -132,6 +137,11 @@ class WP_ES_admin {
         if (empty($input['title']) && empty($input['content']) && (!isset($input['meta_keys']) || empty($input['meta_keys'])) && (!isset($input['taxonomies']) || empty($input['taxonomies']))) {
             add_settings_error('wp_es_error', 'wp_es_error_all_empty', __('Select atleast one setting to search!', $this->text_domain));
             return $settings;   
+        }
+        
+        if (!empty($input['exclude_date']) && !strtotime($input['exclude_date'])) {
+            add_settings_error('wp_es_error', 'wp_es_error_invalid_date', __('Date seems to be in invalid format!', $this->text_domain));
+            return $settings;
         }
         
         if (empty($input['title']) || empty($input['content'])) {
@@ -248,6 +258,18 @@ class WP_ES_admin {
         }
     }
     
+    /**
+     * Exclude older results
+     * @since 1.0.2
+     * @global object $WP_ES
+     */
+    public function wp_es_exclude_results() {
+        global $WP_ES; ?>
+        <script type="text/javascript">jQuery(document).ready(function (){ jQuery('#es_exclude_date').datepicker({ maxDate: new Date(), changeYear: true, dateFormat: "MM dd, yy" }); });</script>
+        <input class="regular-text" type="text" value="<?php echo esc_attr($WP_ES->WP_ES_settings['exclude_date']); ?>" name="wp_es_options[exclude_date]" id="es_exclude_date" />
+        <p class="description"><?php _e('Contents will not appear in search results older than this date OR leave blank to disable this feature.', $this->text_domain); ?></p><?php
+    }
+
     /**
      * return checked if value exist in array
      * @since 1.0
