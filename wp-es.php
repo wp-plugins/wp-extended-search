@@ -5,8 +5,8 @@ Plugin URI: http://www.secretsofgeeks.com/2014/09/wordpress-search-tags-and-cate
 Author: 5um17
 Author URI: http://www.secretsofgeeks.com
 Text Domain: wp-extended-search
-Version: 1.0.2
-Description: Enhance Wordpress default search. Search in selected post meta and/or selected taxonomies, include or exclude post type in serach results.
+Version: 1.1
+Description: Extend default search to search in selected post meta, taxonomies, post types and all authors.
 */
 
 /* Define plugin constants */

@@ -37,8 +37,11 @@ class WP_ES {
                 'content'           =>  true,
                 'meta_keys'         =>  array(),
                 'taxonomies'        =>  array(),
+                'authors'           =>  false,
                 'post_types'        =>  array('post', 'page', 'attachment'),
-                'exclude_date'      => ''
+                'exclude_date'      => '',
+                'posts_per_page'    => '',
+                'terms_relation'    => 1
             );
         return $settings;
     }
@@ -105,6 +108,10 @@ class WP_ES {
                         )
                 ));
             }
+            $posts_per_page = intval($this->WP_ES_settings['posts_per_page']); //Putting in extra line just to get rid off from WP svn pre-commit hook error.
+            if (!empty($posts_per_page)) {
+                $query->set('posts_per_page', $posts_per_page);
+            }
         }
     }
 
@@ -126,6 +133,7 @@ class WP_ES {
         $q = $wp_query->query_vars;
         $n = !empty($q['exact']) ? '' : '%';
         $search = $searchand = '';
+        $terms_relation_type = (intval($this->WP_ES_settings['terms_relation']) === 2) ? 'OR' : 'AND';
         foreach ((array)$q['search_terms'] as $term ) {
             
             $term = esc_sql($term);
@@ -141,7 +149,7 @@ class WP_ES {
             $OR = '';
             if (!empty($this->WP_ES_settings)) {
                 $search .= "{$searchand} (";
-
+                
                 // if post title search is enabled
                 if (!empty($this->WP_ES_settings['title'])) {
                     $search .= "($wpdb->posts.post_title LIKE '{$n}{$term}{$n}')";
@@ -156,7 +164,7 @@ class WP_ES {
                 }
 
                 // if post meta search is enabled
-                if (isset($this->WP_ES_settings['meta_keys']) && !empty($this->WP_ES_settings['meta_keys'])) {
+                if (!empty($this->WP_ES_settings['meta_keys'])) {
                     $meta_key_OR = '';
 
                     foreach ($this->WP_ES_settings['meta_keys'] as $key_slug) {
@@ -170,7 +178,7 @@ class WP_ES {
                 }
                 
                 // if taxonomies search is enabled
-                if (isset($this->WP_ES_settings['taxonomies']) && !empty($this->WP_ES_settings['taxonomies'])) {
+                if (!empty($this->WP_ES_settings['taxonomies'])) {
                     $tax_OR = '';
                     
                     foreach ($this->WP_ES_settings['taxonomies'] as $tax) {
@@ -179,6 +187,14 @@ class WP_ES {
                         $OR = '';
                         $tax_OR = ' OR ';
                     }
+                    
+                    $OR = ' OR ';
+                }
+                
+                // If authors search is enabled
+                if (!empty($this->WP_ES_settings['authors'])) {
+                    $search .= $OR;
+                    $search .= "(users.display_name LIKE '{$n}{$term}{$n}')";
                 }
                 
                 $search .= ")";
@@ -187,7 +203,7 @@ class WP_ES {
                 $search .= "{$searchand} (($wpdb->posts.post_title LIKE '{$n}{$term}{$n}') OR ($wpdb->posts.post_content LIKE '{$n}{$term}{$n}'))";
             }
 
-            $searchand = ' AND ';
+            $searchand = " $terms_relation_type ";
         }
 
         if ( ! empty( $search ) ) {
@@ -231,6 +247,11 @@ class WP_ES {
             $join .= " LEFT JOIN $wpdb->term_relationships tr ON ($wpdb->posts.ID = tr.object_id) ";
             $join .= " LEFT JOIN $wpdb->term_taxonomy tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id) ";
             $join .= " LEFT JOIN $wpdb->terms t ON (tt.term_id = t.term_id) ";
+        }
+        
+        // Joint the users table
+        if (!empty($this->WP_ES_settings['authors'])) {
+            $join .= " LEFT JOIN $wpdb->users users ON ($wpdb->posts.post_author = users.ID) ";
         }
         
         return $join;

@@ -63,14 +63,17 @@ class WP_ES_admin {
 
         /* Add Section */
         add_settings_section( 'wp_es_section_1', __('Select Fields to include in WordPress default Search', $this->text_domain ), array($this, 'wp_es_section_content'), 'wp-es' );	
+        add_settings_section( 'wp_es_section_misc', __('Miscellaneous Settings', $this->text_domain ), array($this, 'wp_es_section_content_misc'), 'wp-es' );
 
         /* Add fields */
         add_settings_field( 'wp_es_title_and_post_content', __('General Search Setting', $this->text_domain), array($this, 'wp_es_title_content_checkbox'), 'wp-es', 'wp_es_section_1' );
         add_settings_field( 'wp_es_list_custom_fields', __('Select Meta Key Names' , $this->text_domain), array($this, 'wp_es_custom_field_name_list'), 'wp-es', 'wp_es_section_1' );
         add_settings_field( 'wp_es_list_taxonomies', __('Select Taxonomies' , $this->text_domain), array($this, 'wp_es_taxonomies_settings'), 'wp-es', 'wp_es_section_1' );
+        add_settings_field( 'wp_es_include_authors', __('Author Setting' , $this->text_domain), array($this, 'wp_es_author_settings'), 'wp-es', 'wp_es_section_1' );
         add_settings_field( 'wp_es_list_post_types', __('Select Post Types' , $this->text_domain), array($this, 'wp_es_post_types_settings'), 'wp-es', 'wp_es_section_1' );
-        add_settings_field( 'wp_es_exclude_older_results', __('Select date to exclude older results' , $this->text_domain), array($this, 'wp_es_exclude_results'), 'wp-es', 'wp_es_section_1', array('label_for' => 'es_exclude_date') );
-        
+        add_settings_field( 'wp_es_terms_relation_type', __('Terms Relation Type' , $this->text_domain), array($this, 'wp_es_terms_relation_type'), 'wp-es', 'wp_es_section_misc', array('label_for' => 'es_terms_relation') );
+        add_settings_field( 'wp_es_exclude_older_results', __('Select date to exclude older results' , $this->text_domain), array($this, 'wp_es_exclude_results'), 'wp-es', 'wp_es_section_misc', array('label_for' => 'es_exclude_date') );
+        add_settings_field( 'wp_es_number_of_posts', __('Posts per page' , $this->text_domain), array($this, 'wp_es_posts_per_page'), 'wp-es', 'wp_es_section_misc', array('label_for' => 'es_posts_per_page') );    
     }
     
     /**
@@ -110,7 +113,12 @@ class WP_ES_admin {
             }
         }
         
-        return $meta_keys;
+        /**
+         * Filter results of SQL query for meta keys
+         * @since 1.1
+         * @param array $meta_keys array of meta keys
+         */
+        return apply_filters('wpes_meta_keys', $meta_keys);
     }
 
     /**
@@ -134,7 +142,7 @@ class WP_ES_admin {
             return $settings;
         }
         
-        if (empty($input['title']) && empty($input['content']) && (!isset($input['meta_keys']) || empty($input['meta_keys'])) && (!isset($input['taxonomies']) || empty($input['taxonomies']))) {
+        if (empty($input['title']) && empty($input['content']) && empty($input['meta_keys']) && empty($input['taxonomies']) && empty($input['authors'])) {
             add_settings_error('wp_es_error', 'wp_es_error_all_empty', __('Select atleast one setting to search!', $this->text_domain));
             return $settings;   
         }
@@ -153,11 +161,19 @@ class WP_ES_admin {
     }
 
     /**
-     * Section content before display fields
+     * Section content before displaying search settings
      * @since 1.0
      */
     public function wp_es_section_content(){ ?>
         <em><?php _e('Every field have OR relation with each other. e.g. if someone search for "5um17" then search results will show those items which have "5um17" as meta value or taxonomy\'s term or in title or in content, whatever option is selected.', $this->text_domain); ?></em><?php
+    }
+    
+    /**
+     * Section content before displaying Miscellaneous Settings
+     * @since 1.1
+     */
+    public function wp_es_section_content_misc() {
+        //to be used in futrue
     }
 
     /**
@@ -215,11 +231,17 @@ class WP_ES_admin {
          * @since 1.0.1
          * @param array arguments array
          */
-        $all_taxonomies = get_taxonomies(apply_filters('wpes_tax_args', array(
+        $tax_args = apply_filters('wpes_tax_args', array(
             'show_ui' => TRUE,
             'public' => TRUE
-        )), 'objects');
+        ));
         
+        /**
+         * Filter taxonomy list return by get_taxonomies function
+         * @since 1.1
+         * @param $all_taxonomies Array of taxonomies
+         */
+        $all_taxonomies = apply_filters('wpes_tax', get_taxonomies($tax_args, 'objects'));
         if (is_array($all_taxonomies) && !empty($all_taxonomies)) {
             foreach ($all_taxonomies as $tax_name => $tax_obj) { ?>
                 <input <?php echo $this->wp_es_checked($tax_name, $WP_ES->WP_ES_settings['taxonomies']); ?> type="checkbox" value="<?php echo $tax_name; ?>" id="<?php echo 'wp_es_' . $tax_name; ?>" name="wp_es_options[taxonomies][]" />&nbsp;
@@ -230,6 +252,19 @@ class WP_ES_admin {
         }
     }
     
+    /**
+     * Author settings meta box
+     * @since 1.1
+     * @global object $WP_ES
+     */
+    public function wp_es_author_settings() {
+        global $WP_ES; ?>
+        <input name="wp_es_options[authors]" type="hidden" value="0" />
+        <input id="wpes_inlcude_authors" <?php checked($WP_ES->WP_ES_settings['authors']); ?> type="checkbox" value="1" name="wp_es_options[authors]" />
+        <label for="wpes_inlcude_authors"><?php _e('Search in Author display name', $this->text_domain); ?></label>
+        <p class="description"><?php _e('If checked then it will display those results whose Author "Display name" match the search terms.', $this->text_domain); ?></p><?php
+    }
+
     /**
      * Post type checkboexes
      * @since 1.0
@@ -243,10 +278,17 @@ class WP_ES_admin {
          * @since 1.0.1
          * @param array arguments array
          */
-        $all_post_types = get_post_types(apply_filters('wpes_post_types_args', array(
+        $post_types_args = apply_filters('wpes_post_types_args', array(
             'show_ui' => TRUE,
             'public' => TRUE
-        )), 'objects');
+        ));
+        
+        /**
+         * Filter post type array return by get_post_types function
+         * @since 1.1
+         * @param array $all_post_types Array of post types
+         */
+        $all_post_types = apply_filters('wpes_post_types', get_post_types($post_types_args, 'objects'));
         
         if (is_array($all_post_types) && !empty($all_post_types)) {
             foreach ($all_post_types as $post_name => $post_obj) { ?>
@@ -259,6 +301,20 @@ class WP_ES_admin {
     }
     
     /**
+     * Terms relation type meta box
+     * @since 1.1
+     * @global object $WP_ES
+     */
+    public function wp_es_terms_relation_type() {
+        global $WP_ES; ?>
+        <select id="es_terms_relation" name="wp_es_options[terms_relation]">
+            <option <?php selected($WP_ES->WP_ES_settings['terms_relation'], 1); ?> value="1"><?php _e('AND', $this->text_domain); ?></option>
+            <option <?php selected($WP_ES->WP_ES_settings['terms_relation'], 2); ?> value="2"><?php _e('OR', $this->text_domain); ?></option>
+        </select>
+        <p class="description"><?php _e('Type of query relation between search terms. e.g. someone search for "my query" then define the relation between "my" and "query". Default value is AND.', $this->text_domain); ?></p><?php
+    }
+    
+    /**
      * Exclude older results
      * @since 1.0.2
      * @global object $WP_ES
@@ -268,6 +324,17 @@ class WP_ES_admin {
         <script type="text/javascript">jQuery(document).ready(function (){ jQuery('#es_exclude_date').datepicker({ maxDate: new Date(), changeYear: true, dateFormat: "MM dd, yy" }); });</script>
         <input class="regular-text" type="text" value="<?php echo esc_attr($WP_ES->WP_ES_settings['exclude_date']); ?>" name="wp_es_options[exclude_date]" id="es_exclude_date" />
         <p class="description"><?php _e('Contents will not appear in search results older than this date OR leave blank to disable this feature.', $this->text_domain); ?></p><?php
+    }
+    
+    /**
+     * Posts per search results page
+     * @since 1.1
+     * @global object $WP_ES
+     */
+    public function wp_es_posts_per_page() {
+        global $WP_ES; ?>
+        <input min="-1" class="small-text" type="number" value="<?php echo esc_attr($WP_ES->WP_ES_settings['posts_per_page']); ?>" name="wp_es_options[posts_per_page]" id="es_posts_per_page" />
+        <p class="description"><?php _e('Number of posts to display on search result page OR leave blank for default value.', $this->text_domain); ?></p><?php
     }
 
     /**
