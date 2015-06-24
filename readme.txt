@@ -3,7 +3,7 @@ Contributors: 5um17
 Tags: search, postmeta, taxonomy, advance search, category search, page search, tag search, author search, search results, posts per page
 Requires at least: 3.7
 Tested up to: 4.2.2
-Stable tag: 1.0.2
+Stable tag: 1.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -46,7 +46,7 @@ Please use plugin [support forum](http://wordpress.org/support/plugin/wp-extende
 
 == Changelog ==
 
-= 1.1 - 2015-06-21 =
+= 1.1 - 2015-06-24 =
 * Added feature to search in post author name
 * Added feature to customize number of posts per search results page
 * Added feature to control SQL query relation between search terms
