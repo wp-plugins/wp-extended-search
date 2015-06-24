@@ -46,7 +46,7 @@ Please use plugin [support forum](http://wordpress.org/support/plugin/wp-extende
 
 == Changelog ==
 
-= 1.1 - 2015-06-21 =
+= 1.1 - 2015-06-24 =
 * Added feature to search in post author name
 * Added feature to customize number of posts per search results page
 * Added feature to control SQL query relation between search terms
